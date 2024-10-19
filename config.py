@@ -9,7 +9,7 @@ config = {
     "policy_dt": 0.05,
 
     "sim_max_time": 600,
-    "max_steps": 1_000_000_000,
+    "max_steps": 1_000,
     "policy_cls": "MlpPolicy",
     "policy_kwargs": dict(
         activation_fn=torch.nn.ReLU,

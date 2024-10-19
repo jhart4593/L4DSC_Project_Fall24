@@ -5,7 +5,7 @@ import math
 import gymnasium as gym
 from gymnasium import spaces
 import matplotlib.pyplot as plt
-import mpl_toolkits.mplot3d.axes3d as p3
+from mpl_toolkits.mplot3d import Axes3D
 
 from config import config
 from rewards import get_rewards
@@ -226,12 +226,8 @@ class AUVEnv(gym.Env):
 
 
     def render(self):
-      legendSize = 10  # legend size
       figSize1 = [25, 13]  # figure1 size in cm
       dpiValue = 150  # figure dpi value
-
-      def R2D(value):  # radians to degrees
-          return value * 180 / math.pi
 
       def cm2inch(value):  # inch to cm
           return value / 2.54
@@ -242,20 +238,14 @@ class AUVEnv(gym.Env):
       z = self.simData[:,2]
 
       # down-sampling the xyz data points
-      N = y[::len(x)]
-      E = x[::len(x)]
-      D = z[::len(x)]
-
-      dataSet = np.array([N, E, -D])      # Down is negative z
+      N = y
+      E = x
+      D = -z  # Down is negative z
 
       # Attaching 3D axis to the figure
       fig = plt.figure(figsize=(cm2inch(figSize1[0]),cm2inch(figSize1[1])),
-                dpi=dpiValue)
-      ax = p3.Axes3D(fig, auto_add_to_figure=False)
-      fig.add_axes(ax)
-
-      # Line/trajectory plot
-      line = plt.plot(dataSet[0], dataSet[1], dataSet[2], lw=2, c='b')[0]
+          dpi=dpiValue)
+      ax = fig.add_subplot(projection = '3d')
 
       # Setting the axes properties
       ax.set_xlabel('X / East')
@@ -267,6 +257,9 @@ class AUVEnv(gym.Env):
 
       ax.set_zlabel('-Z / Down')
 
+      # Plot trajectory
+      ax.plot(E, N, D)
+
       # Plot 2D surface for z = 0
       [x_min, x_max] = ax.get_xlim()
       [y_min, y_max] = ax.get_ylim()
@@ -274,10 +267,12 @@ class AUVEnv(gym.Env):
       y_grid = np.arange(y_min-20, y_max+20)
       [xx, yy] = np.meshgrid(x_grid, y_grid)
       zz = 0 * xx
-      ax.plot_surface(xx, yy, zz, alpha=0.3)
+      ax.plot_surface(xx, yy, zz, alpha=0.3, color='b')
 
       # Title of plot
       ax.set_title('North-East-Down')
+
+      return fig
 
 
     def close(self):
@@ -303,10 +298,11 @@ if __name__ == "__main__":
     print(env.action_space)
     print(env.action_space.sample())
 
-    T = 10
+    T = 100
     now = time.time()
     for _ in range(T):
         action = env.action_space.sample()
         obs, rew, term, trunc, info = env.step(action)
     print(f"{int(T/(time.time() - now)):_d} steps/second")
-    #env.render()
+    env.render()
+    plt.show()
