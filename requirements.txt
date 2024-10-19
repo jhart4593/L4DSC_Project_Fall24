@@ -1,6 +1,6 @@
 numpy
 matplotlib
-mpl_toolkits.mplot3d.axes3D
+mpl_toolkits.mplot3d
 stable-baselines3
 tensorboard
 torch
