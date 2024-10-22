@@ -19,8 +19,7 @@ class AUVEnv(gym.Env):
     Custom Environment that follows gym interface for AUV adaptive PID controller.
     """
     metadata = {
-        "render_modes": ["human"],
-        "render_fps": int(1 / config["policy_dt"])
+        "render_modes": ["human"]
         }
 
     def __init__(
@@ -83,7 +82,7 @@ class AUVEnv(gym.Env):
             )
 
         # The observation space is the state vector - [x y z Theta nu del_r del_s
-        #  controller_errors] where Theta consists of sin and cos of roll, pitch
+        # controller_errors] where Theta consists of sin and cos of roll, pitch
         # and yaw angles respectively, del_r/s are rudder and stern plane angles,
         # and controller_errors are depth, yaw, and pitch errors respectively
         phi_lim = self.cfg["phi_lim"]
@@ -115,6 +114,10 @@ class AUVEnv(gym.Env):
 
         self.observation_space = spaces.Box(low=np.array(low_vec), high=
                                             np.array(high_vec), dtype=np.float32)
+        
+        # Initialize plotting variables for tracking
+        self.plot = None
+        self.counter = 0
 
     def reset(self, seed=None, options=None):
         # called to initiate a new episode, called before step function
@@ -123,6 +126,11 @@ class AUVEnv(gym.Env):
 
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
+
+        # Render the data for episode about to be reset and reset counter
+        if self.counter > 1:
+            self.plot = self.render()
+        self.counter = 0
 
         # Reset time counter
         self.t = 0
@@ -174,8 +182,8 @@ class AUVEnv(gym.Env):
         # determine info to return
         info = {}
 
-        if self.render_mode == "human":
-          self.render()
+        # if self.render_mode == "human":
+        #   self.render()
 
         return observation, info
 
@@ -218,9 +226,11 @@ class AUVEnv(gym.Env):
            truncated = True
            
 
-
         # determine info to return
         info = {}
+
+        # Iterate plotting counter
+        self.counter += 1
 
         return observation, reward, terminated, truncated, info
 

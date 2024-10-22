@@ -8,7 +8,7 @@ config = {
     "sim_dt": 0.05,
     "policy_dt": 0.05,
 
-    "sim_max_time": 600,
+    "sim_max_time": 172800,
     "max_steps": 1_000,
     "policy_cls": "MlpPolicy",
     "policy_kwargs": dict(

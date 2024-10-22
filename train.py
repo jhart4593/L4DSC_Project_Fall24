@@ -1,6 +1,7 @@
 from stable_baselines3 import SAC
 import wandb
 from wandb.integration.sb3 import WandbCallback
+import traceback
 
 from callbacks import WandBVideoCallback 
 from config import config 
@@ -32,9 +33,11 @@ try:
                 model_save_freq=100,  # 100
                 gradient_save_freq=100,  # 100
             ),
-            WandBVideoCallback(),
+            # WandBVideoCallback(),
         ],
     )
-except Exception as e:
-    print(f"Exception: {e}")
+# except Exception as e:
+#     print(f"Exception: {e}")
+except:
+    traceback.print_exc()
 run.finish()
