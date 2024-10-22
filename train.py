@@ -1,4 +1,5 @@
 from stable_baselines3 import SAC
+from stable_baselines3.common.env_util import make_vec_env
 import wandb
 from wandb.integration.sb3 import WandbCallback
 import traceback
@@ -11,10 +12,12 @@ run = wandb.init(
     project="AUV_env",
     config=config,
     sync_tensorboard=True,
+    monitor_gym=True,
     save_code=True,
 )
 
 env = AUVEnv(render_mode="human")
+# env = make_vec_env(AUVEnv,n_envs=1)
 
 model = SAC(
     config["policy_cls"],
