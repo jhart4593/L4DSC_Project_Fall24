@@ -2,6 +2,7 @@ from typing import Any, Callable, Dict, Iterable, List,  Optional, Type
 
 import numpy as np
 import math
+import wandb
 import gymnasium as gym
 from gymnasium import spaces
 import matplotlib.pyplot as plt
@@ -119,6 +120,10 @@ class AUVEnv(gym.Env):
         self.plot = None
         self.counter = 0
 
+        # Reward sum for each timestep, total episode reward
+        self.reward_sum = 0
+        self.episode_reward = 0
+
     def reset(self, seed=None, options=None):
         # called to initiate a new episode, called before step function
         # also called whenever terminated or truncated is issued
@@ -134,6 +139,10 @@ class AUVEnv(gym.Env):
 
         # Reset time counter
         self.t = 0
+
+        # Track cumulative episode in wandb and reset reward sum value
+        self.episode_reward = self.reward_sum
+        self.reward_sum = 0
 
         # choose path from list of paths in config file, reset path values
         path_choice = self.np_random.integers(1,len(list(self.path_list.values())),endpoint=True)
@@ -208,12 +217,16 @@ class AUVEnv(gym.Env):
             self.next_waypt(self.path, self.path_idx, self.vehicle, self.dist_within)
         )
 
-        # calculate reward
+        # calculate reward, log on wandb
         self.depth_err.append(self.vehicle.z_previous_error)
         self.yaw_err.append(self.vehicle.yaw_previous_error)
         self.pitch_err.append(self.vehicle.theta_previous_error)
         reward = self.get_rewards(self.vehicle, self.depth_err, self.yaw_err, self.pitch_err,
                              self.simData, self.beta)
+        self.reward_sum += reward
+        
+        wandb.log({"train/reward":self.reward_sum})
+        wandb.log({"train/episode_return":self.episode_reward})
 
         # set terminated criteria - if reached final waypt
         terminated = self.final_pt
@@ -229,8 +242,12 @@ class AUVEnv(gym.Env):
         # determine info to return
         info = {}
 
-        # Iterate plotting counter
+        # Iterate plotting counter and log plot if step is divisible by 100
         self.counter += 1
+        
+        if self.counter % 100 == 0:
+            wandb.log({"plot": wandb.Image(self.render())})
+            
 
         return observation, reward, terminated, truncated, info
 
