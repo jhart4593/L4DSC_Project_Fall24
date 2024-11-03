@@ -49,7 +49,7 @@ try:
             # WandBVideoCallback(),
         ],
     )
-    save_dir = "/home/kws/L4DSC_Project_Fall24/"
+    save_dir = "~/L4DSC_Project_Fall24/"
     model.save(save_dir + "PPO_AUV")
 
 # except Exception as e:

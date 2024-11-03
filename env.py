@@ -134,7 +134,10 @@ class AUVEnv(gym.Env):
 
         # Render the data for episode about to be reset and reset counter
         if self.counter > 1:
-            wandb.log({"plot": wandb.Image(self.render())})
+            if(not 'evaluate' in inspect.stack()[-1][1]):
+                wandb.log({"plot": wandb.Image(self.render())})
+                plt.close()
+            
         self.counter = 0
 
         # Reset time counter
@@ -248,15 +251,25 @@ class AUVEnv(gym.Env):
         # Iterate plotting counter and log plot if step is divisible by 100
         self.counter += 1
         
-        if self.counter % 100 == 0:
-            if(not 'evaluate' in inspect.stack()[-1][1]):
-                wandb.log({"plot": wandb.Image(self.render())})
-                plt.close()
+        if(not 'evaluate' in inspect.stack()[-1][1]):
+            wandb.log({"state/rudder_angle":self.u_actual[0]})
+            wandb.log({"state/stern_plane_angle":self.u_actual[1]})
+            wandb.log({"state/depth_error":self.vehicle.z_previous_error})
+            wandb.log({"state/yaw_error":self.vehicle.yaw_previous_error})
+            wandb.log({"state/pitch_error":self.vehicle.theta_previous_error})
+            wandb.log({"state/depth_Kp":self.z_kp})
+            wandb.log({"state/depth_Ki":self.z_ki})
+            wandb.log({"state/yaw_Kp":self.yaw_kp})
+            wandb.log({"state/yaw_Ki":self.yaw_ki})
+            wandb.log({"state/pitch_Kp":self.theta_kp})
+            wandb.log({"state/pitch_Ki":self.theta_ki})
+
 
         if('evaluate' in inspect.stack()[-1][1]):
             with open('PPO_AUV_eval.csv', 'a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(self.simData[-1,:])
+
         return observation, reward, terminated, truncated, info
 
 
