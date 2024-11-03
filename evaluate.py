@@ -3,7 +3,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 import matplotlib.pyplot as plt
 import numpy as np
-from remus100 import plotVehicleStates, plotControls, plot3D
+from remus100 import plotVehicleStates, plotControls, plot3D, plot_controls_2D, plot_attitude_2D
 from config import config
 from eval_config import eval_config
 
@@ -44,5 +44,7 @@ target_positions = eval_config["path"]
 plotVehicleStates(simTime, simData, 'PPO_AUV_eval_states.png', 2)                    
 plotControls(simTime, simData, 'PPO_AUV_eval_controls.png', 3)
 plot3D(simData, target_positions, 50, 10, 'PPO_AUV_eval_3D.gif', 4)  
+plot_controls_2D(simData, 50, 'PPO_AUV_eval_controls_2D.gif', 5)
+plot_attitude_2D(simData, 50, 'PPO_AUV_eval_attitude_2D.gif', 6)
 
-plt.show()
+# plt.show()
