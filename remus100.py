@@ -106,9 +106,9 @@ def main():
             vehicle.target_position = target_positions[j]
             vehicle.ref_z = target_positions[j][2]
 
-    plotVehicleStates(simTime, simData, 1)                    
-    plotControls(simTime, simData, 2)
-    plot3D(simData, target_positions, 50, 10, '3D_animation.gif', 3)   
+    plotVehicleStates(simTime, simData, 'vehicle_states.png', 1)                    
+    plotControls(simTime, simData, 'vehicle_controls.png', 2)
+    plot3D(simData, target_positions, 50, 10, 'vehicle_3D.gif', 3)   
     
     plt.show()
     plt.close()
@@ -1074,7 +1074,7 @@ def cm2inch(value):  # inch to cm
 
 # plotVehicleStates(simTime, simData, figNo) plots the 6-DOF vehicle
 # position/attitude and velocities versus time in figure no. figNo
-def plotVehicleStates(simTime, simData, figNo):
+def plotVehicleStates(simTime, simData, filename, figNo):
 
     # Time vector
     t = simTime
@@ -1169,10 +1169,11 @@ def plotVehicleStates(simTime, simData, figNo):
     plt.legend(["Crab angle (deg)"], fontsize=legendSize)
     plt.grid()
 
+    plt.savefig(filename)
 
 # plotControls(simTime, simData) plots the vehicle control inputs versus time
 # in figure no. figNo
-def plotControls(simTime, simData, figNo):
+def plotControls(simTime, simData, filename, figNo):
 
     DOF = 6
 
@@ -1180,7 +1181,7 @@ def plotControls(simTime, simData, figNo):
     t = simTime
 
     plt.figure(
-        figNo, figsize=(3,6), dpi=dpiValue
+        figNo, figsize=(4,6), dpi=dpiValue
     )
 
     # Columns and rows needed to plot vehicle.dimU control inputs
@@ -1211,6 +1212,9 @@ def plotControls(simTime, simData, figNo):
         )
         plt.xlabel("Time (s)", fontsize=12)
         plt.grid()
+        plt.ticklabel_format(useOffset=False)
+        
+    plt.savefig(filename)
 
 
 # plot3D(simData,numDataPoints,FPS,filename,figNo) plots the vehicles position (x, y, z) in 3D

@@ -56,7 +56,7 @@ config = {
     # reset limits
     "ref_rpm_const": 900.0,
     "ref_rpm_low": 600.0,
-    "ref_rpm_high": 1525.0,
+    "ref_rpm_high": 1800.0,
     "rudder_CL_low": 2.0,
     "rudder_CL_high": 4.0,
     "stern_CL_low": 2.0,
