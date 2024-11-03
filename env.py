@@ -134,7 +134,7 @@ class AUVEnv(gym.Env):
 
         # Render the data for episode about to be reset and reset counter
         if self.counter > 1:
-            self.plot = self.render()
+            wandb.log({"plot": wandb.Image(self.render())})
         self.counter = 0
 
         # Reset time counter
@@ -245,9 +245,22 @@ class AUVEnv(gym.Env):
         # Iterate plotting counter and log plot if step is divisible by 100
         self.counter += 1
         
-        if self.counter % 100 == 0:
-            wandb.log({"plot": wandb.Image(self.render())})
-            
+        # if self.counter % 100 == 0:
+        #     wandb.log({"plot": wandb.Image(self.render())})
+
+        # Log values to track on wandb
+        wandb.log({"state/rudder_angle":self.u_actual[0]})
+        wandb.log({"state/stern_plane_angle":self.u_actual[1]})
+        wandb.log({"state/depth_error":self.vehicle.z_previous_error})
+        wandb.log({"state/yaw_error":self.vehicle.yaw_previous_error})
+        wandb.log({"state/pitch_error":self.vehicle.theta_previous_error})
+        wandb.log({"state/depth_Kp":self.z_kp})
+        wandb.log({"state/depth_Ki":self.z_ki})
+        wandb.log({"state/yaw_Kp":self.yaw_kp})
+        wandb.log({"state/yaw_Ki":self.yaw_ki})
+        wandb.log({"state/pitch_Kp":self.theta_kp})
+        wandb.log({"state/pitch_Ki":self.theta_ki})
+        
 
         return observation, reward, terminated, truncated, info
 
