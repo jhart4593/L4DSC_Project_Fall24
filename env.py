@@ -12,8 +12,8 @@ from config import config
 from rewards import get_rewards
 from remus100 import step, remus100
 from utils import get_obs, next_waypt
-
-
+import inspect
+import csv
 
 class AUVEnv(gym.Env):
     """
@@ -145,8 +145,11 @@ class AUVEnv(gym.Env):
         self.reward_sum = 0
 
         # choose path from list of paths in config file, reset path values
-        path_choice = self.np_random.integers(1,len(list(self.path_list.values())),endpoint=True)
-        self.path = self.path_list[path_choice]
+        if('evaluate' in inspect.stack()[-1][1]):
+            self.path = [[0,100,30],[100,100,30],[100,0,20],[0,0,20]]
+        else:
+            path_choice = self.np_random.integers(1,len(list(self.path_list.values())),endpoint=True)
+            self.path = self.path_list[path_choice]
         self.path_idx = 0
 
         # choose reference propeller rpm in range of values in config file, or set constant
@@ -158,7 +161,7 @@ class AUVEnv(gym.Env):
 
         # instantiate remus100 - inputs are initial reference depth (depth of 1st target pt),
         # and reference propeller rpm
-        self.vehicle = self.remus100(self.path[self.path_idx][2], self.ref_rpm, self.Vc, target_positions = self.path)
+        self.vehicle = self.remus100(r_z = self.path[self.path_idx][2], r_psi = 90, r_rpm = self.ref_rpm, V_c0 = self.Vc, target_positions = self.path)
 
         # set dynamic lift coefficients and vehicle drag coefficient
         self.vehicle.CL_delta_r = self.np_random.uniform(low=self.cfg["rudder_CL_low"], high=self.cfg["rudder_CL_high"])
@@ -224,9 +227,9 @@ class AUVEnv(gym.Env):
         reward = self.get_rewards(self.vehicle, self.depth_err, self.yaw_err, self.pitch_err,
                              self.simData, self.beta)
         self.reward_sum += reward
-        
-        wandb.log({"train/reward":self.reward_sum})
-        wandb.log({"train/episode_return":self.episode_reward})
+        if(not 'evaluate' in inspect.stack()[-1][1]):
+            wandb.log({"train/reward":self.reward_sum})
+            wandb.log({"train/episode_return":self.episode_reward})
 
         # set terminated criteria - if reached final waypt
         terminated = self.final_pt
@@ -245,23 +248,15 @@ class AUVEnv(gym.Env):
         # Iterate plotting counter and log plot if step is divisible by 100
         self.counter += 1
         
-        # if self.counter % 100 == 0:
-        #     wandb.log({"plot": wandb.Image(self.render())})
+        if self.counter % 100 == 0:
+            if(not 'evaluate' in inspect.stack()[-1][1]):
+                wandb.log({"plot": wandb.Image(self.render())})
+                plt.close()
 
-        # Log values to track on wandb
-        wandb.log({"state/rudder_angle":self.u_actual[0]})
-        wandb.log({"state/stern_plane_angle":self.u_actual[1]})
-        wandb.log({"state/depth_error":self.vehicle.z_previous_error})
-        wandb.log({"state/yaw_error":self.vehicle.yaw_previous_error})
-        wandb.log({"state/pitch_error":self.vehicle.theta_previous_error})
-        wandb.log({"state/depth_Kp":self.z_kp})
-        wandb.log({"state/depth_Ki":self.z_ki})
-        wandb.log({"state/yaw_Kp":self.yaw_kp})
-        wandb.log({"state/yaw_Ki":self.yaw_ki})
-        wandb.log({"state/pitch_Kp":self.theta_kp})
-        wandb.log({"state/pitch_Ki":self.theta_ki})
-        
-
+        if('evaluate' in inspect.stack()[-1][1]):
+            with open('PPO_AUV_eval.csv', 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(self.simData[-1,:])
         return observation, reward, terminated, truncated, info
 
 

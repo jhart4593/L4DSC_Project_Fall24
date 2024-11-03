@@ -107,7 +107,7 @@ def main():
             vehicle.ref_z = target_positions[j][2]
 
     plotVehicleStates(simTime, simData, 1)                    
-    plotControls(simTime, simData, vehicle, 2)
+    plotControls(simTime, simData, 2)
     plot3D(simData, target_positions, 50, 10, '3D_animation.gif', 3)   
     
     plt.show()
@@ -297,7 +297,7 @@ class remus100:
         trim_final, iterations, error = self.trim()
 
         # calculate (u,v,w)
-        self.eta = np.array([0, 0, r_z, trim_final.get('phi_t'), 0, 0])
+        self.eta = np.array([0, 0, r_z, trim_final.get('phi_t'), 0, self.ref_psi * self.D2R])
         self.nu = np.array([trim_final.get('u_t'), trim_final.get('v_t'), trim_final.get('w_t'), 0, 0, 0], float) # velocity vector
         self.u_actual = np.array([trim_final.get('ds_t') * self.D2R, trim_final.get('dr_t') * self.D2R, self.ref_n], float)    # control input vector
         
@@ -635,7 +635,7 @@ class remus100:
         zpos = x[8]
         phi = x[9]
         theta = x[10]
-        psi = x[11]
+        psi = self.ref_psi * self.D2R
 
         eta = [xpos, ypos, zpos, phi, theta, psi]
 
@@ -1172,7 +1172,7 @@ def plotVehicleStates(simTime, simData, figNo):
 
 # plotControls(simTime, simData) plots the vehicle control inputs versus time
 # in figure no. figNo
-def plotControls(simTime, simData, vehicle, figNo):
+def plotControls(simTime, simData, figNo):
 
     DOF = 6
 
@@ -1180,27 +1180,33 @@ def plotControls(simTime, simData, vehicle, figNo):
     t = simTime
 
     plt.figure(
-        figNo, figsize=(cm2inch(figSize2[0]), cm2inch(figSize2[1])), dpi=dpiValue
+        figNo, figsize=(3,6), dpi=dpiValue
     )
 
     # Columns and rows needed to plot vehicle.dimU control inputs
-    col = 2
-    row = int(math.ceil(vehicle.dimU / col))
+    col = 1
+    row = int(math.ceil(3 / col))
+
+    controls = [
+            "Tail rudder (deg)",
+            "Stern plane (deg)",
+            "Propeller revolution (rpm)"
+            ]
 
     # Plot the vehicle.dimU active control inputs
-    for i in range(0, vehicle.dimU):
+    for i in range(0, 3):
 
         u_control = simData[:, 2 * DOF + i]  # control input, commands
-        u_actual = simData[:, 2 * DOF + vehicle.dimU + i]  # actual control input
+        u_actual = simData[:, 2 * DOF + 3 + i]  # actual control input
 
-        if vehicle.controls[i].find("deg") != -1:  # convert angles to deg
+        if controls[i].find("deg") != -1:  # convert angles to deg
             u_control = R2D(u_control)
             u_actual = R2D(u_actual)
 
         plt.subplot(row, col, i + 1)
         plt.plot(t, u_control, t, u_actual)
         plt.legend(
-            [vehicle.controls[i] + ", command", vehicle.controls[i] + ", actual"],
+            [controls[i] + ", command", controls[i] + ", actual"],
             fontsize=legendSize,
         )
         plt.xlabel("Time (s)", fontsize=12)
