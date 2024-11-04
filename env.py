@@ -13,7 +13,7 @@ from eval_config import eval_config
 from rewards import get_rewards
 from remus100 import step, remus100
 from utils import get_obs, next_waypt
-# import inspect
+import inspect
 import csv
 
 class AUVEnv(gym.Env):
