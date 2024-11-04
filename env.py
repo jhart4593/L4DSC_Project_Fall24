@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 from config import config
+from eval_config import eval_config
 from rewards import get_rewards
 from remus100 import step, remus100
 from utils import get_obs, next_waypt
@@ -55,7 +56,8 @@ class AUVEnv(gym.Env):
         self.path_idx = 0
         self.ref_rpm = 900
         self.Vc = 0
-        self.vehicle = self.remus100(r_rpm=self.ref_rpm)
+        init_heading = np.tan(self.path[self.path_idx][0]/max([self.path[self.path_idx][1],0.0001])) / np.pi * 180
+        self.vehicle = self.remus100(r_z = self.path[self.path_idx][2], r_psi = init_heading, r_rpm = self.ref_rpm, V_c0 = self.Vc, target_positions = self.path)
 
         self.waypt_dist = 50; self.final_pt = False
         self.dist_within = self.cfg["waypt_dist_within_criteria"]
@@ -148,11 +150,11 @@ class AUVEnv(gym.Env):
         self.reward_sum = 0
 
         # choose path from list of paths in config file, reset path values
-        # if('evaluate' in inspect.stack()[-1][1]):
-            # self.path = [[0,100,30],[100,100,30],[100,0,20],[0,0,20]]
-        # else:
-        path_choice = self.np_random.integers(1,len(list(self.path_list.values())),endpoint=True)
-        self.path = self.path_list[path_choice]
+        if('evaluate' in inspect.stack()[-1][1]):
+            self.path = eval_config["path"]
+        else:
+            path_choice = self.np_random.integers(1,len(list(self.path_list.values())),endpoint=True)
+            self.path = self.path_list[path_choice]
         self.path_idx = 0
 
         # choose reference propeller rpm in range of values in config file, or set constant
@@ -160,16 +162,25 @@ class AUVEnv(gym.Env):
         self.ref_rpm = self.cfg["ref_rpm_const"]
 
         # randomly sample water current velocity over range in config file
-        self.Vc = self.np_random.uniform(low=self.cfg["water_curr_vel_low"], high=self.cfg["water_curr_vel_high"])
+        if('evaluate' in inspect.stack()[-1][1]):
+            self.Vc = eval_config["Vc"]
+        else:
+            self.Vc = self.np_random.uniform(low=self.cfg["water_curr_vel_low"], high=self.cfg["water_curr_vel_high"])
 
         # instantiate remus100 - inputs are initial reference depth (depth of 1st target pt),
         # and reference propeller rpm
-        self.vehicle = self.remus100(r_z = self.path[self.path_idx][2], r_psi = 90, r_rpm = self.ref_rpm, V_c0 = self.Vc, target_positions = self.path)
+        init_heading = np.tan(self.path[self.path_idx][0]/max([self.path[self.path_idx][1],0.0001])) / np.pi * 180
+        self.vehicle = self.remus100(r_z = self.path[self.path_idx][2], r_psi = init_heading, r_rpm = self.ref_rpm, V_c0 = self.Vc, target_positions = self.path)
 
         # set dynamic lift coefficients and vehicle drag coefficient
-        self.vehicle.CL_delta_r = self.np_random.uniform(low=self.cfg["rudder_CL_low"], high=self.cfg["rudder_CL_high"])
-        self.vehicle.CL_delta_s = self.np_random.uniform(low=self.cfg["stern_CL_low"], high=self.cfg["stern_CL_high"])
-        Cd = self.np_random.uniform(low=self.cfg["Cd_low"], high=self.cfg["Cd_high"])
+        if('evaluate' in inspect.stack()[-1][1]):
+            self.vehicle.CL_delta_r = eval_config["CL_delta_r"]
+            self.vehicle.CL_delta_s = eval_config["CL_delta_s"]
+            Cd = eval_config["Cd"]
+        else:
+            self.vehicle.CL_delta_r = self.np_random.uniform(low=self.cfg["rudder_CL_low"], high=self.cfg["rudder_CL_high"])
+            self.vehicle.CL_delta_s = self.np_random.uniform(low=self.cfg["stern_CL_low"], high=self.cfg["stern_CL_high"])
+            Cd = self.np_random.uniform(low=self.cfg["Cd_low"], high=self.cfg["Cd_high"])
         self.vehicle.CD_0 = Cd * math.pi * (self.vehicle.diam/2)**2 / self.vehicle.S
 
         # reset other values

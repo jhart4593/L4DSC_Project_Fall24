@@ -106,9 +106,9 @@ def main():
             vehicle.target_position = target_positions[j]
             vehicle.ref_z = target_positions[j][2]
 
-    plotVehicleStates(simTime, simData, 1)                    
-    plotControls(simTime, simData, 2)
-    plot3D(simData, target_positions, 50, 10, '3D_animation.gif', 3)   
+    plotVehicleStates(simTime, simData, 'vehicle_states.png', 1)                    
+    plotControls(simTime, simData, 'vehicle_controls.png', 2)
+    plot3D(simData, target_positions, 50, 10, 'vehicle_3D.gif', 3)   
     
     plt.show()
     plt.close()
@@ -1074,7 +1074,7 @@ def cm2inch(value):  # inch to cm
 
 # plotVehicleStates(simTime, simData, figNo) plots the 6-DOF vehicle
 # position/attitude and velocities versus time in figure no. figNo
-def plotVehicleStates(simTime, simData, figNo):
+def plotVehicleStates(simTime, simData, filename, figNo):
 
     # Time vector
     t = simTime
@@ -1169,10 +1169,11 @@ def plotVehicleStates(simTime, simData, figNo):
     plt.legend(["Crab angle (deg)"], fontsize=legendSize)
     plt.grid()
 
+    plt.savefig(filename)
 
 # plotControls(simTime, simData) plots the vehicle control inputs versus time
 # in figure no. figNo
-def plotControls(simTime, simData, figNo):
+def plotControls(simTime, simData, filename, figNo):
 
     DOF = 6
 
@@ -1180,7 +1181,7 @@ def plotControls(simTime, simData, figNo):
     t = simTime
 
     plt.figure(
-        figNo, figsize=(3,6), dpi=dpiValue
+        figNo, figsize=(4,6), dpi=dpiValue
     )
 
     # Columns and rows needed to plot vehicle.dimU control inputs
@@ -1211,6 +1212,9 @@ def plotControls(simTime, simData, figNo):
         )
         plt.xlabel("Time (s)", fontsize=12)
         plt.grid()
+        plt.ticklabel_format(useOffset=False)
+
+    plt.savefig(filename)
 
 
 # plot3D(simData,numDataPoints,FPS,filename,figNo) plots the vehicles position (x, y, z) in 3D
@@ -1282,5 +1286,82 @@ def plot3D(simData,target_positions,numDataPoints,FPS,filename,figNo):
     
     # Save the 3D animation as a gif file
     ani.save(filename, writer=animation.PillowWriter(fps=FPS))  
+
+def plot_controls_2D(simData, FPS, filename, figNo):
+
+    rudder_command = R2D(simData[:, 12])
+    rudder_actual = R2D(simData[:, 15])
+    stern_command = R2D(simData[:, 13])
+    stern_actual = R2D(simData[:, 16])
+    
+    # Animation function
+    def anim_function(i): 
+        ax.clear()
+        ax.set_xlim(-30, 30)
+        ax.set_ylim(-30, 30)
+
+        # Setting the axes properties
+        ax.set_xlabel('Tail rudder (deg)')
+        ax.set_ylabel('Stern plane (deg)')
+                        
+        # Title of plot
+        ax.set_title('AUV Controls (10x speed)')    
+        stern = plt.Rectangle((-20, 0), 40, stern_actual[i], fc='red')
+        ax.add_patch(stern)
+        rudder = plt.Rectangle((0, -20), rudder_actual[i], 40, fc='red')
+        ax.add_patch(rudder)
+        ax.plot([-30, 30], [0, 0], linestyle='dotted', color='black')
+        ax.plot([0, 0], [-30, 30], linestyle='dotted', color='black')
+
+    fig, ax = plt.subplots(num=figNo)
+    
+    # Create the animation object
+    ani = animation.FuncAnimation(fig, 
+                         anim_function, 
+                         frames=len(rudder_actual), 
+                         interval=20)
+    # Save the 3D animation as a gif file
+    ani.save(filename, dpi=80, writer='pillow') 
+
+def plot_attitude_2D(simData, FPS, filename, figNo):
+
+    theta = R2D(simData[:, 4])
+    psi = R2D(simData[:, 5])
+
+    u = simData[:, 6]
+    v = simData[:, 7]
+    w = simData[:, 8]
+
+    beta = R2D(ssa(np.arctan2(v,u))) 
+    alpha = R2D(ssa(np.arctan2(w,u)))
+
+    # Animation function
+    def anim_function(i): 
+        ax.clear()
+        ax.set_xlim(-40, 40)
+        ax.set_ylim(-40, 40)
+
+        # Setting the axes properties
+        ax.set_xlabel('Ref Yaw / Crab (deg)')
+        ax.set_ylabel('Pitch / Flight Path (deg)')
+
+        # Title of plot
+        ax.set_title('AUV Attitudes (10x speed))')    
+        ax.scatter(0, theta[i], marker='o', facecolor='none', edgecolor='blue', label='Pitch / Ref Yaw')
+        ax.scatter(beta[i], alpha[i], marker='o', facecolor='none', edgecolor='red', label='Crab / Flight')
+
+        ax.plot([-40, 40], [0, 0], linestyle='dotted', color='black')
+        ax.plot([0, 0], [-40, 40], linestyle='dotted', color='black')
+        ax.legend()
+
+    fig, ax = plt.subplots(num=figNo)
+    
+    # Create the animation object
+    ani = animation.FuncAnimation(fig, 
+                         anim_function, 
+                         frames=len(theta), 
+                         interval=20)
+    # Save the 3D animation as a gif file
+    ani.save(filename, dpi=80, writer='pillow') 
 
 # main()

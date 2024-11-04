@@ -3,12 +3,13 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 import matplotlib.pyplot as plt
 import numpy as np
-from remus100 import plotVehicleStates, plotControls, plot3D
+from remus100 import plotVehicleStates, plotControls, plot3D, plot_controls_2D, plot_attitude_2D
 from config import config
+from eval_config import eval_config
 
 env = make_vec_env(AUVEnv)
-model = PPO.load("~/L4DSC_Project_Fall24/PPO_AUV", env=env)
-num_steps = 1000
+model = PPO.load("./PPO_AUV", env=env)
+num_steps = 5000
 
 filename = "PPO_AUV_eval.csv"
 f = open(filename, "w+")
@@ -38,9 +39,12 @@ def cm2inch(value):  # inch to cm
     return value / 2.54
 
 simData = np.genfromtxt('PPO_AUV_eval.csv', delimiter=',')
+target_positions = eval_config["path"]
 
-plotVehicleStates(simTime, simData, 2)                    
-plotControls(simTime, simData, 3)
-# plot3D(simData, target_positions, 50, 10, '3D_animation.gif', 3)  
+plotVehicleStates(simTime, simData, 'PPO_AUV_eval_states.png', 2)                    
+plotControls(simTime, simData, 'PPO_AUV_eval_controls.png', 3)
+plot3D(simData, target_positions, 50, 10, 'PPO_AUV_eval_3D.gif', 4)  
+plot_controls_2D(simData, 50, 'PPO_AUV_eval_controls_2D.gif', 5)
+plot_attitude_2D(simData, 50, 'PPO_AUV_eval_attitude_2D.gif', 6)
 
-plt.show()
+# plt.show()
