@@ -241,9 +241,9 @@ class AUVEnv(gym.Env):
         reward = self.get_rewards(self.vehicle, self.depth_err, self.yaw_err, self.pitch_err,
                              self.simData, self.beta)
         self.reward_sum += reward
-        #if(not 'evaluate' in inspect.stack()[-1][1]):
-        wandb.log({"train/reward":self.reward_sum})
-        wandb.log({"train/episode_return":self.episode_reward})
+        if(not 'evaluate' in inspect.stack()[-1][1]):
+            wandb.log({"train/reward":self.reward_sum})
+            wandb.log({"train/episode_return":self.episode_reward})
 
         # set terminated criteria - if reached final waypt
         terminated = self.final_pt
@@ -262,24 +262,24 @@ class AUVEnv(gym.Env):
         # Iterate plotting counter and log plot if step is divisible by 100
         self.counter += 1
         
-        # if(not 'evaluate' in inspect.stack()[-1][1]):
-        wandb.log({"state/rudder_angle":self.u_actual[0]})
-        wandb.log({"state/stern_plane_angle":self.u_actual[1]})
-        wandb.log({"state/depth_error":self.vehicle.z_previous_error})
-        wandb.log({"state/yaw_error":self.vehicle.yaw_previous_error})
-        wandb.log({"state/pitch_error":self.vehicle.theta_previous_error})
-        wandb.log({"state/depth_Kp":self.z_kp})
-        wandb.log({"state/depth_Ki":self.z_ki})
-        wandb.log({"state/yaw_Kp":self.yaw_kp})
-        wandb.log({"state/yaw_Ki":self.yaw_ki})
-        wandb.log({"state/pitch_Kp":self.theta_kp})
-        wandb.log({"state/pitch_Ki":self.theta_ki})
+        if(not 'evaluate' in inspect.stack()[-1][1]):
+            wandb.log({"state/rudder_angle":self.u_actual[0]})
+            wandb.log({"state/stern_plane_angle":self.u_actual[1]})
+            wandb.log({"state/depth_error":self.vehicle.z_previous_error})
+            wandb.log({"state/yaw_error":self.vehicle.yaw_previous_error})
+            wandb.log({"state/pitch_error":self.vehicle.theta_previous_error})
+            wandb.log({"state/depth_Kp":self.z_kp})
+            wandb.log({"state/depth_Ki":self.z_ki})
+            wandb.log({"state/yaw_Kp":self.yaw_kp})
+            wandb.log({"state/yaw_Ki":self.yaw_ki})
+            wandb.log({"state/pitch_Kp":self.theta_kp})
+            wandb.log({"state/pitch_Ki":self.theta_ki})
 
 
-        # if('evaluate' in inspect.stack()[-1][1]):
-        #     with open('PPO_AUV_eval.csv', 'a', newline='') as file:
-        #         writer = csv.writer(file)
-        #         writer.writerow(self.simData[-1,:])
+        if('evaluate' in inspect.stack()[-1][1]):
+            with open('PPO_AUV_eval.csv', 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(self.simData[-1,:])
 
         return observation, reward, terminated, truncated, info
 
