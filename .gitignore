@@ -4,3 +4,5 @@
 *.vscode/
 *models/
 *PPO_AUV/
+*final_model/
+*model_logs/

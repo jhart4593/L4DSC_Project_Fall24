@@ -2,9 +2,11 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.callbacks import CheckpointCallback
 import wandb
 from wandb.integration.sb3 import WandbCallback
 import traceback
+import math
 
 from callbacks import WandBVideoCallback 
 from config import config 
@@ -26,6 +28,14 @@ run = wandb.init(
 # env = DummyVecEnv([make_env])
 env = make_vec_env(AUVEnv,n_envs=config["num_envs"])
 
+# Save checkpoint every 1000 steps
+save_freq = config["model_save_freq"]
+checkpoint_callback = CheckpointCallback(
+    save_freq = max(save_freq // config["num_envs"], 1),
+    save_path="./model_logs/",
+    name_prefix="rl_model"
+)
+
 model = PPO(
     config["policy_cls"],
     env,
@@ -46,10 +56,13 @@ try:
                 model_save_freq=100,  # 100
                 gradient_save_freq=100,  # 100
             ),
+
             # WandBVideoCallback(),
+
+            checkpoint_callback
         ],
     )
-    save_dir = "~/L4DSC_Project_Fall24/"
+    save_dir = "./final_model/"
     model.save(save_dir + "PPO_AUV")
 
 # except Exception as e:
