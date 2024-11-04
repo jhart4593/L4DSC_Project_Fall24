@@ -7,7 +7,7 @@ from remus100 import plotVehicleStates, plotControls, plot3D
 from config import config
 
 env = make_vec_env(AUVEnv)
-model = PPO.load("/home/kws/L4DSC_Project_Fall24/PPO_AUV", env=env)
+model = PPO.load("~/L4DSC_Project_Fall24/PPO_AUV", env=env)
 num_steps = 1000
 
 filename = "PPO_AUV_eval.csv"
