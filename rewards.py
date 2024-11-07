@@ -34,11 +34,18 @@ def get_rewards(vehicle, depth_err, yaw_err, pitch_err, simData, beta):
         else:
             T = -abs(err) / cfg["depth_err_lim"]
         return T
+    
+    T_depth = T_op_d(e_depth, e_depth_min)
+    T_yaw = T_op(e_yaw, e_yaw_min)
+    T_pitch = T_op(e_pitch, e_pitch_min)
+    neg_rud_act = beta*(del_delta_v / delta_v_max)
+    neg_stern_plane_act = beta*(del_delta_h / delta_h_max)
 
-    r_t = (T_op_d(e_depth, e_depth_min) + T_op(e_yaw, e_yaw_min) + T_op(e_pitch, e_pitch_min)
-        + beta*(del_delta_v / delta_v_max) + beta*(del_delta_h / delta_h_max))
+    indiv_terms = [T_depth,T_yaw,T_pitch,neg_rud_act,neg_stern_plane_act]
 
-    return r_t
+    r_t = (T_depth + T_yaw + T_pitch + neg_rud_act + neg_stern_plane_act)
+
+    return r_t, indiv_terms
 
 
 # test the function

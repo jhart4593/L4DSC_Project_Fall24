@@ -2,14 +2,14 @@ import torch
 import math
 
 config = {
-    "num_envs": 1,
+    "num_envs": 10,
     "device": "cpu",
     "seed": 0,
     "sim_dt": 0.2,
     "policy_dt": 0.05,
 
     "sim_max_time": 1800,
-    "max_steps": 1_000,
+    "max_steps": 100_000_000,
     "policy_cls": "MlpPolicy",
     "policy_kwargs": dict(
         activation_fn=torch.nn.ReLU,
@@ -18,7 +18,7 @@ config = {
     "verbose": 1,
     "rollout_steps": 50,
     "minibatch_size": 50,
-    "model_save_freq": 1000,
+    "model_save_freq": 100_000, 
 
     # action/observation space limits
     "phi_lim": math.radians(30),

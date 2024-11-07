@@ -2,13 +2,12 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
-from stable_baselines3.common.callbacks import CheckpointCallback
 import wandb
 from wandb.integration.sb3 import WandbCallback
 import traceback
 import math
 
-from callbacks import WandBVideoCallback 
+from callbacks import WandBVideoCallback, checkpoint_callback  
 from config import config 
 from env import AUVEnv 
 
@@ -20,6 +19,9 @@ run = wandb.init(
     save_code=True,
 )
 
+# Save config file for each training run to wandb
+wandb.save( "./config.py")
+
 # env = AUVEnv(render_mode="human")
 # def make_env():
 #     env = AUVEnv()
@@ -27,14 +29,6 @@ run = wandb.init(
 #     return env
 # env = DummyVecEnv([make_env])
 env = make_vec_env(AUVEnv,n_envs=config["num_envs"])
-
-# Save checkpoint every 1000 steps
-save_freq = config["model_save_freq"]
-checkpoint_callback = CheckpointCallback(
-    save_freq = max(save_freq // config["num_envs"], 1),
-    save_path="./model_logs/",
-    name_prefix="rl_model"
-)
 
 model = PPO(
     config["policy_cls"],
@@ -52,9 +46,9 @@ try:
         callback=[
             WandbCallback(
                 verbose=config["verbose"],
-                model_save_path=f"models/{run.id}",  # f"models/{run.id}"
-                model_save_freq=100,  # 100
-                gradient_save_freq=100,  # 100
+                model_save_path=None,  # f"models/{run.id}"
+                model_save_freq=0,  # 100
+                gradient_save_freq=0,  # 100
             ),
 
             # WandBVideoCallback(),

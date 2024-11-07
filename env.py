@@ -47,6 +47,8 @@ class AUVEnv(gym.Env):
         self.remus100 = remus100
 
         # initialize anything necessary for environment
+        self.num_term = 0
+        self.num_trunc = 0
         self.simData = np.empty( [0, 22], float)
         self.t = 0
         self.sampleTime = self.cfg["sim_dt"]
@@ -136,10 +138,10 @@ class AUVEnv(gym.Env):
 
         # Render the data for episode about to be reset and reset counter
         if self.counter > 1:
-            # if(not 'evaluate' in inspect.stack()[-1][1]):
+            if(not 'evaluate' in inspect.stack()[-1][1]):
                 wandb.log({"plot": wandb.Image(self.render())})
                 plt.close()
-            
+                          
         self.counter = 0
 
         # Reset time counter
@@ -238,12 +240,17 @@ class AUVEnv(gym.Env):
         self.depth_err.append(self.vehicle.z_previous_error)
         self.yaw_err.append(self.vehicle.yaw_previous_error)
         self.pitch_err.append(self.vehicle.theta_previous_error)
-        reward = self.get_rewards(self.vehicle, self.depth_err, self.yaw_err, self.pitch_err,
+        [reward,indiv_rew_terms] = self.get_rewards(self.vehicle, self.depth_err, self.yaw_err, self.pitch_err,
                              self.simData, self.beta)
         self.reward_sum += reward
         if(not 'evaluate' in inspect.stack()[-1][1]):
             wandb.log({"train/reward":self.reward_sum})
             wandb.log({"train/episode_return":self.episode_reward})
+            wandb.log({"reward/depth_err":indiv_rew_terms[0]})
+            wandb.log({"reward/yaw_err":indiv_rew_terms[1]})
+            wandb.log({"reward/pitch_err":indiv_rew_terms[2]})
+            wandb.log({"reward/rudder_act":indiv_rew_terms[3]})
+            wandb.log({"reward/stern_plane_act":indiv_rew_terms[3]})
 
         # set terminated criteria - if reached final waypt
         terminated = self.final_pt
@@ -254,7 +261,13 @@ class AUVEnv(gym.Env):
         if ((self.t > self.max_time) or (self.waypt_dist > self.dist_limit) or
                      (abs(self.eta[3]) > self.roll_lim) or (abs(self.eta[4]) > self.pitch_lim)):
            truncated = True
-           
+
+        # set value based on terminated or truncated for episode 
+        if terminated:
+            self.num_term += 1
+
+        if truncated:
+            self.num_trunc += 1  
 
         # determine info to return
         info = {}
@@ -274,6 +287,11 @@ class AUVEnv(gym.Env):
             wandb.log({"state/yaw_Ki":self.yaw_ki})
             wandb.log({"state/pitch_Kp":self.theta_kp})
             wandb.log({"state/pitch_Ki":self.theta_ki})
+
+            
+            # log number of episodes that are terminated vs truncated
+            wandb.log({"reward/num_term":self.num_term})
+            wandb.log({"reward/num_trunc":self.num_trunc})
 
 
         if('evaluate' in inspect.stack()[-1][1]):
