@@ -2,7 +2,7 @@ import torch
 import math
 
 config = {
-    "num_envs": 10,
+    "num_envs": 100,
     "device": "cpu",
     "seed": 0,
     "sim_dt": 0.2,
