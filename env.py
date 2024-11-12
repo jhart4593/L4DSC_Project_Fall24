@@ -127,6 +127,11 @@ class AUVEnv(gym.Env):
         # Reward sum for each timestep, total episode reward
         self.reward_sum = 0
         self.episode_reward = 0
+        self.depth_e = 0
+        self.yaw_e = 0
+        self.pitch_e = 0
+        self.rud_act = 0
+        self.stern_act = 0
 
     def reset(self, seed=None, options=None):
         # called to initiate a new episode, called before step function
@@ -150,6 +155,11 @@ class AUVEnv(gym.Env):
         # Track cumulative episode in wandb and reset reward sum value
         self.episode_reward = self.reward_sum
         self.reward_sum = 0
+        self.depth_e = 0
+        self.yaw_e = 0
+        self.pitch_e = 0
+        self.rud_act = 0
+        self.stern_act = 0
 
         # choose path from list of paths in config file, reset path values
         if('evaluate' in inspect.stack()[-1][1]):
@@ -242,15 +252,22 @@ class AUVEnv(gym.Env):
         self.pitch_err.append(self.vehicle.theta_previous_error)
         [reward,indiv_rew_terms] = self.get_rewards(self.vehicle, self.depth_err, self.yaw_err, self.pitch_err,
                              self.simData, self.beta)
+        
         self.reward_sum += reward
+        self.depth_e += indiv_rew_terms[0]
+        self.yaw_e += indiv_rew_terms[1]
+        self.pitch_e += indiv_rew_terms[2]
+        self.rud_act += indiv_rew_terms[3]
+        self.stern_act += indiv_rew_terms[4]
+
         if(not 'evaluate' in inspect.stack()[-1][1]):
             wandb.log({"train/reward":self.reward_sum})
             wandb.log({"train/episode_return":self.episode_reward})
-            wandb.log({"reward/depth_err":indiv_rew_terms[0]})
-            wandb.log({"reward/yaw_err":indiv_rew_terms[1]})
-            wandb.log({"reward/pitch_err":indiv_rew_terms[2]})
-            wandb.log({"reward/rudder_act":indiv_rew_terms[3]})
-            wandb.log({"reward/stern_plane_act":indiv_rew_terms[3]})
+            wandb.log({"reward/depth_err":self.depth_e})
+            wandb.log({"reward/yaw_err":self.yaw_e})
+            wandb.log({"reward/pitch_err":self.pitch_e})
+            wandb.log({"reward/rudder_act":self.rud_act})
+            wandb.log({"reward/stern_plane_act":self.stern_act})
 
         # set terminated criteria - if reached final waypt
         terminated = self.final_pt

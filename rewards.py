@@ -12,10 +12,10 @@ def get_rewards(vehicle, depth_err, yaw_err, pitch_err, simData, beta):
 
     # break out values needed from input arrays
     e_depth = depth_err[-1]; e_yaw = yaw_err[-1]; e_pitch = pitch_err[-1]
-    del_delta_v = simData[-1][13] - simData[-2][13]
-    del_delta_h = simData[-1][12] - simData[-2][12]
-    delta_v_max = vehicle.deltaMax_s
-    delta_h_max = vehicle.deltaMax_r
+    del_delta_h = simData[-1][13] - simData[-2][13]
+    del_delta_v = simData[-1][12] - simData[-2][12]
+    delta_h_max = vehicle.deltaMax_s
+    delta_v_max = vehicle.deltaMax_r
     e_depth_min = np.min(np.absolute(depth_err))
     e_yaw_min = np.min(np.absolute(yaw_err))
     e_pitch_min = np.min(np.absolute(pitch_err))
