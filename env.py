@@ -132,6 +132,11 @@ class AUVEnv(gym.Env):
         self.pitch_e = 0
         self.rud_act = 0
         self.stern_act = 0
+        self.depth_e_ep = 0
+        self.yaw_e_ep = 0
+        self.pitch_e_ep = 0
+        self.rud_act_ep = 0
+        self.stern_act_ep = 0
 
     def reset(self, seed=None, options=None):
         # called to initiate a new episode, called before step function
@@ -152,8 +157,14 @@ class AUVEnv(gym.Env):
         # Reset time counter
         self.t = 0
 
-        # Track cumulative episode in wandb and reset reward sum value
+        # Track cumulative episode rewards in wandb and reset reward sum values
         self.episode_reward = self.reward_sum
+        self.depth_e_ep = self.depth_e
+        self.yaw_e_ep =  self.yaw_e
+        self.pitch_e_ep = self.pitch_e
+        self.rud_act_ep = self.rud_act
+        self.stern_act_ep = self.stern_act
+
         self.reward_sum = 0
         self.depth_e = 0
         self.yaw_e = 0
@@ -263,11 +274,11 @@ class AUVEnv(gym.Env):
         if(not 'evaluate' in inspect.stack()[-1][1]):
             wandb.log({"train/reward":self.reward_sum})
             wandb.log({"train/episode_return":self.episode_reward})
-            wandb.log({"reward/depth_err":self.depth_e})
-            wandb.log({"reward/yaw_err":self.yaw_e})
-            wandb.log({"reward/pitch_err":self.pitch_e})
-            wandb.log({"reward/rudder_act":self.rud_act})
-            wandb.log({"reward/stern_plane_act":self.stern_act})
+            wandb.log({"reward/depth_err":self.depth_e_ep})
+            wandb.log({"reward/yaw_err":self.yaw_e_ep})
+            wandb.log({"reward/pitch_err":self.pitch_e_ep})
+            wandb.log({"reward/rudder_act":self.rud_act_ep})
+            wandb.log({"reward/stern_plane_act":self.stern_act_ep})
 
         # set terminated criteria - if reached final waypt
         terminated = self.final_pt

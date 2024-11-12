@@ -18,7 +18,7 @@ config = {
     "verbose": 1,
     "rollout_steps": 50,
     "minibatch_size": 50,
-    "model_save_freq": 100_000, 
+    "model_save_freq": 1_000_000, 
 
     # action/observation space limits
     "phi_lim": math.radians(30),
