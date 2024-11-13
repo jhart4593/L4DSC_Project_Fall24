@@ -22,17 +22,21 @@ def get_rewards(vehicle, depth_err, yaw_err, pitch_err, simData, beta):
 
     # define functions for T operator of reward function
     def T_op(err, err_min):
-        if abs(err) <= err_min:
+        # if abs(err) <= err_min:
+        if abs(abs(err) - abs(err_min)) <= 0.001:
             T = math.exp(-abs(err))
         else:
-            T = -abs(err) / math.pi
+            # T = -abs(err) / math.pi
+            T = 0
         return T
     
     def T_op_d(err, err_min):
-        if abs(err) <= err_min:
+        # if abs(err) <= err_min:
+        if abs(abs(err) - abs(err_min)) <= 0.001:
             T = math.exp(-abs(err))
         else:
-            T = -abs(err) / cfg["depth_err_lim"]
+            # T = -abs(err) / cfg["depth_err_lim"]
+            T = 0
         return T
     
     T_depth = T_op_d(e_depth, e_depth_min)
