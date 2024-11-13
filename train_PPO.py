@@ -19,9 +19,10 @@ run = wandb.init(
     save_code=True,
 )
 
-# Save config and rewards file for each training run to wandb
+# Save config, env, and rewards file for each training run to wandb
 wandb.save( "./config.py")
 wandb.save("./rewards.py")
+wandb.save("./env.py")
 
 # env = AUVEnv(render_mode="human")
 # def make_env():
