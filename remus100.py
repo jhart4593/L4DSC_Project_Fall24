@@ -474,7 +474,17 @@ class remus100:
         delta_r += sampleTime * delta_r_dot
         delta_s += sampleTime * delta_s_dot
         n += sampleTime * n_dot
-        
+
+        # Amplitude saturation of the control signals
+        if abs(delta_r) >= self.deltaMax_r:
+            delta_r = np.sign(delta_r) * self.deltaMax_r
+            
+        if abs(delta_s) >= self.deltaMax_s:
+            delta_s = np.sign(delta_s) * self.deltaMax_s          
+            
+        if abs(n) >= self.nMax:
+            n = np.sign(n) * self.nMax  
+           
         u_actual = np.array([ delta_r, delta_s, n ], float)
 
         return nu, u_actual, nu_dot    
