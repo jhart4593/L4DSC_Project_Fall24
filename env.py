@@ -147,10 +147,10 @@ class AUVEnv(gym.Env):
         super().reset(seed=seed)
 
         # Render the data for episode about to be reset and reset counter
-        if self.counter > 1:
-            if(not 'evaluate' in inspect.stack()[-1][1]):
-                wandb.log({"plot": wandb.Image(self.render())})
-                plt.close()
+        # if self.counter > 1:
+        #     if(not 'evaluate' in inspect.stack()[-1][1]):
+        #         wandb.log({"plot": wandb.Image(self.render())})
+        #         plt.close()
                           
         self.counter = 0
 

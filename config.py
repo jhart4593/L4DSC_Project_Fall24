@@ -9,7 +9,7 @@ config = {
     "policy_dt": 0.05,
 
     "sim_max_time": 1800,
-    "max_steps": 25_000_000,
+    "max_steps": 200_000_000,
     "policy_cls": "MlpPolicy",
     "policy_kwargs": dict(
         activation_fn=torch.nn.ReLU,
@@ -50,7 +50,7 @@ config = {
     "waypt_overshoot_criteria": 200,
 
     # reward and truncate limits
-    "reward_beta_coefficient": -0.0001,
+    "reward_beta_coefficient": -0.1,
     "roll_trunc_limit": math.radians(30),
     "pitch_trunc_limit": math.radians(40),
 
