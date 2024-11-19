@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
 from config import config
+from eval_config import eval_config
 
 legendSize = 5  # legend size
 figSize1 = [25, 13]  # figure1 size in cm
@@ -600,13 +601,15 @@ if __name__=="__main__":
     refTime = refImport[:, 0]
     refData = refImport[:, 1:]
 
-    sacData = None
-    sacTime = None
-    # sacData = np.genfromtxt('SAC_AUV_eval.csv', delimiter=',')
-    # sacTime = []
-    # for i in range(sacData.shape[0]):
-    #     t = i * config["sim_dt"]
-    #     sacTime.append(t)
+    # sacData = None
+    # sacTime = None
+    sacData = np.genfromtxt('SAC_AUV_eval.csv', delimiter=',')
+    sacTime = []
+    for i in range(sacData.shape[0]):
+        t = i * config["sim_dt"]
+        sacTime.append(t)
+
+    target_positions = eval_config["path"]
 
     overplotVehicleTimeHistory(ppoTime, ppoData, refTime, refData, sacTime, sacData, 'AUV_eval_time_history_overplot.png', 2)
     overplot3D(ppoData, refData, sacData, target_positions, 100, 10, 'AUV_eval_3D_overplot.gif', 4)  
