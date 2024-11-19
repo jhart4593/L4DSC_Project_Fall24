@@ -49,7 +49,7 @@ class AUVEnv(gym.Env):
         # initialize anything necessary for environment
         self.num_term = 0
         self.num_trunc = 0
-        self.simData = np.empty( [0, 22], float)
+        self.simData = np.empty( [0, 23], float)
         self.t = 0
         self.sampleTime = self.cfg["sim_dt"]
         self.max_time = self.cfg["sim_max_time"]
@@ -147,11 +147,11 @@ class AUVEnv(gym.Env):
         super().reset(seed=seed)
 
         # Render the data for episode about to be reset and reset counter
-        # if self.counter > 1:
-        #     if(not 'evaluate' in inspect.stack()[-1][1]):
-        #         wandb.log({"plot": wandb.Image(self.render())})
-        #         plt.close()
-                          
+        if self.counter > 1:
+            if(not 'evaluate' in inspect.stack()[-1][1]):
+                wandb.log({"plot": wandb.Image(self.render())})
+                plt.close()
+            
         self.counter = 0
 
         # Reset time counter
@@ -217,7 +217,7 @@ class AUVEnv(gym.Env):
 
         # Store simulation data in simData
         signals = (np.array(list(self.eta) + list(self.nu) + [0, 0, 0] + 
-                            list(self.u_actual) + self.vehicle.target_position + [self.vehicle.psi_d]))
+                            list(self.u_actual) + self.vehicle.target_position + [self.vehicle.psi_d] + [self.vehicle.theta_d]))
         self.simData = signals
         
 

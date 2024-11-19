@@ -70,14 +70,18 @@ Author:     Thor I. Fossen
 def main():    
     # Simulation parameters: 
     sampleTime = 0.02                   # sample time [seconds]
-    runTime = 7
+    runTime = 20
     N = int(runTime/sampleTime*60)
 
     # Set Target Positions
-    target_positions = [[0,100,30],[100,100,30],[100,0,20],[0,0,20]]
+    # target_positions = [[0,100,30],[100,100,30],[100,0,20],[0,0,20]]
+    target_positions = [[0,0,5],[0,100,5],[100,100,10],[100,0,15],[200,0,20],[200,100,25],[300,100,30],[300,0,35],[400,0,40],[400,100,45],[500,100,50]]
+    
+    # Set Initial Heading
+    init_heading = np.tan(target_positions[0][0]/max([target_positions[0][1],0.0001])) / np.pi * 180
 
     # Initialize Vehicle
-    vehicle = remus100(30,0,900,N,0.2,target_positions)
+    vehicle = remus100(r_z = target_positions[0][2], r_psi = 0, r_rpm = 900, N = N, V_c0 = 0.2, target_positions = target_positions)
     
     # Initial state vectors
     eta = vehicle.eta   # position/attitude, defined by vehicle class
@@ -86,7 +90,7 @@ def main():
     
     # Initialization of table used to store the simulation data
     j = 0
-    simData = np.empty( [0, 22], float)
+    simData = np.empty( [0, 23], float)
     simTime = []
 
     # Simulator for-loop
@@ -110,6 +114,8 @@ def main():
     plotControls(simTime, simData, 'vehicle_controls.png', 2)
     plot3D(simData, target_positions, 50, 10, 'vehicle_3D.gif', 3)   
     
+    np.savetxt("REMUS100_Reference.csv", np.column_stack((simTime, simData)), delimiter=",")
+
     plt.show()
     plt.close()
 
@@ -118,7 +124,7 @@ def step(vehicle,eta,nu,sampleTime,u_actual,simData):
     u_control = vehicle.depthHeadingAutopilot(eta,nu,sampleTime)             
     
     # Store simulation data in simData
-    signals = np.array(list(eta) + list(nu) + list(u_control) + list(u_actual) + vehicle.target_position + [vehicle.psi_d])
+    signals = np.array(list(eta) + list(nu) + list(u_control) + list(u_actual) + vehicle.target_position + [vehicle.psi_d] + [vehicle.theta_d])
     simData = np.vstack( [simData, signals] ) 
 
     # Water Current Model
@@ -290,6 +296,7 @@ class remus100:
         self.theta_kp = 0.1   # pitch PID controller     
         self.theta_ki = 0.001
         
+        self.theta_d = 0
         self.e_z_int = 0         # heave position integral state
         self.z_d = r_z         # desired position, LP filter initial state
         self.e_theta_int = 0     # pitch angle integral state 
@@ -1374,4 +1381,5 @@ def plot_attitude_2D(simData, FPS, filename, figNo):
     # Save the 3D animation as a gif file
     ani.save(filename, dpi=80, writer='pillow') 
 
-# main()
+if __name__=="__main__":
+    main()

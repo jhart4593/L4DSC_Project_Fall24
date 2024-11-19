@@ -8,7 +8,7 @@ from config import config
 from eval_config import eval_config
 
 env = make_vec_env(AUVEnv)
-model = PPO.load("./final_model/PPO_AUV", env=env)
+model = PPO.load("./rl_model_10000000_steps.zip", env=env)
 num_steps = 5000
 
 filename = "PPO_AUV_eval.csv"
@@ -32,13 +32,13 @@ for i in range(num_steps):
     if done:
         break
 
-figSize1 = [25, 13]  # figure1 size in cm
-dpiValue = 150  # figure dpi value
-
-def cm2inch(value):  # inch to cm
-    return value / 2.54
-
 simData = np.genfromtxt('PPO_AUV_eval.csv', delimiter=',')
+
+simTime = []
+for i in range(simData.shape[0]):
+    t = i * config["sim_dt"]
+    simTime.append(t)
+
 target_positions = eval_config["path"]
 
 plotVehicleStates(simTime, simData, 'PPO_AUV_eval_states.png', 2)                    
