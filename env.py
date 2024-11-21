@@ -80,11 +80,18 @@ class AUVEnv(gym.Env):
         # Define action and observation space
         # action space is limits on PID coefficients - Kp, Ki for depth, yaw, pitch
         # controllers respectively
+        # self.action_space = spaces.Box(
+        #     low=np.array([0, 0, 0, 0, 0, 0]),
+        #     high=np.array([self.kp_high, self.ki_high, self.kp_high, self.ki_high, self.kp_high, self.ki_high]),
+        #     dtype=np.float32
+        #     )
+        
+        # Normalized action space
         self.action_space = spaces.Box(
-            low=np.array([0, 0, 0, 0, 0, 0]),
-            high=np.array([self.kp_high, self.ki_high, self.kp_high, self.ki_high, self.kp_high, self.ki_high]),
+            low=np.array([-1, -1, -1, -1, -1, -1]),
+            high=np.array([1,1,1,1,1,1]),
             dtype=np.float32
-            )
+            )        
 
         # The observation space is the state vector - [x y z Theta nu del_r del_s
         # controller_errors] where Theta consists of sin and cos of roll, pitch
@@ -147,10 +154,10 @@ class AUVEnv(gym.Env):
         super().reset(seed=seed)
 
         # Render the data for episode about to be reset and reset counter
-        if self.counter > 1:
-            if(not 'evaluate' in inspect.stack()[-1][1]):
-                wandb.log({"plot": wandb.Image(self.render())})
-                plt.close()
+        # if self.counter > 1:
+        #     if(not 'evaluate' in inspect.stack()[-1][1]):
+        #         wandb.log({"plot": wandb.Image(self.render())})
+        #         plt.close()
             
         self.counter = 0
 
@@ -239,7 +246,24 @@ class AUVEnv(gym.Env):
 
     def step(self, action):
         # using agent actions, run one timestep of the environment's dynamics
-        [self.z_kp, self.z_ki,self.yaw_kp, self.yaw_ki, self.theta_kp, self.theta_ki] = action
+        # [self.z_kp, self.z_ki,self.yaw_kp, self.yaw_ki, self.theta_kp, self.theta_ki] = action
+
+        # handling normalized action space
+        def kp_norm(norm_action):
+            kp = (norm_action + 1)/2 * self.kp_high
+            return kp
+        
+        def ki_norm(norm_action):
+            ki = (norm_action + 1)/2 * self.ki_high
+            return ki
+        
+        self.z_kp = kp_norm(action[0])
+        self.z_ki = ki_norm(action[1])
+        self.yaw_kp = kp_norm(action[2])
+        self.yaw_ki = ki_norm(action[3])
+        self.theta_kp = kp_norm(action[4])
+        self.theta_ki = ki_norm(action[5])
+
 
         self.t += self.sampleTime
 

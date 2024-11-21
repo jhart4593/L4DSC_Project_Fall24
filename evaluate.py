@@ -8,7 +8,7 @@ from config import config
 from eval_config import eval_config
 
 env = make_vec_env(AUVEnv)
-model = PPO.load("./rl_model_10000000_steps.zip", env=env)
+model = PPO.load("./rl_model_25000000_steps.zip", env=env)
 num_steps = 5000
 
 filename = "PPO_AUV_eval.csv"

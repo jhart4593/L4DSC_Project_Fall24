@@ -50,6 +50,7 @@ config = {
     "waypt_overshoot_criteria": 200,
 
     # reward and truncate limits
+    "reward_alpha_coefficient": 0.125,
     "reward_beta_coefficient": -0.1,
     "roll_trunc_limit": math.radians(30),
     "pitch_trunc_limit": math.radians(40),

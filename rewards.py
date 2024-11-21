@@ -47,23 +47,24 @@ def get_rewards(vehicle, depth_err, yaw_err, pitch_err, simData, beta):
     # neg_rud_act = beta*(del_delta_v / delta_v_max)
     # neg_stern_plane_act = beta*(del_delta_h / delta_h_max)
 
-    # penalizing rudder commands over threshold of +/- 25deg
-    # delta_h = simData[-1][13]
-    # delta_v = simData[-1][12]
+    # First initialize rudder command penalties
+    neg_rud_act = 0
+    neg_stern_plane_act = 0
 
-    # if abs(delta_v) >= math.radians(25):
-    #     diff_v = abs(abs(delta_v) - math.radians(25))
-    #     diff_v_deg = math.degrees(diff_v)
-    #     neg_rud_act = beta * (math.exp(-1/diff_v_deg))
-    # else:
-    #     neg_rud_act = 0
+    # penalizing rudder commands over threshold of +/- 25deg
+    delta_h = simData[-1][13]
+    delta_v = simData[-1][12]
+
+    if abs(delta_v) >= math.radians(25):
+        diff_v = abs(abs(delta_v) - math.radians(25))
+        diff_v_deg = math.degrees(diff_v)
+        neg_rud_act += beta * (math.exp(-1/diff_v_deg))
     
-    # if abs(delta_h) >= math.radians(25):
-    #     diff_h = abs(abs(delta_h) - math.radians(25))
-    #     diff_h_deg = math.degrees(diff_h)
-    #     neg_stern_plane_act = beta * (math.exp(-1/diff_h_deg))
-    # else:
-    #     neg_stern_plane_act = 0
+    if abs(delta_h) >= math.radians(25):
+        diff_h = abs(abs(delta_h) - math.radians(25))
+        diff_h_deg = math.degrees(diff_h)
+        neg_stern_plane_act += beta * (math.exp(-1/diff_h_deg))
+
 
     # Penalizing if greatest difference in last 5 rudder commands is over threshold +/- 15deg
     rud_cmd_lst = simData[:,12]
@@ -81,15 +82,14 @@ def get_rewards(vehicle, depth_err, yaw_err, pitch_err, simData, beta):
     diff_s = abs(max(end_s) - min(end_s))
 
     if diff_r >= math.radians(15):
-        neg_rud_act = beta * math.exp(-1/math.degrees(diff_r))
-    else:
-        neg_rud_act = 0
+        neg_rud_act += beta * math.exp(-1/math.degrees(diff_r))
 
     if diff_s >= math.radians(15):
-        neg_stern_plane_act = beta * math.exp(-1/math.degrees(diff_s))
-    else:
-        neg_stern_plane_act = 0
+        neg_stern_plane_act += beta * math.exp(-1/math.degrees(diff_s))
 
+
+    # Scale down yaw error term by alpha coefficient
+    T_yaw = cfg["reward_alpha_coefficient"] * T_yaw
 
     # Output individual reward terms as well as sum
     indiv_terms = [T_depth,T_yaw,T_pitch,neg_rud_act,neg_stern_plane_act]
