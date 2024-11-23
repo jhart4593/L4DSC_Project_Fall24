@@ -362,13 +362,13 @@ def overplot3D(ppoData, refData, sacData, target_positions, numDataPoints, FPS, 
 
 def overplot_controls_2D(ppoData, refData, sacData, FPS, filename, figNo):
 
-    rud_cmd_PPO = R2D(ppoData[:, 12])
-    stern_cmd_PPO = R2D(ppoData[:, 13])
-    rud_cmd_ref = R2D(refData[:, 12])
-    stern_cmd_ref = R2D(refData[:, 13])
+    rud_cmd_PPO = R2D(ppoData[:, 15])
+    stern_cmd_PPO = R2D(ppoData[:, 16])
+    rud_cmd_ref = R2D(refData[:, 15])
+    stern_cmd_ref = R2D(refData[:, 16])
     if sacData is not None:
-        rud_cmd_SAC = R2D(sacData[:, 12])
-        stern_cmd_SAC = R2D(sacData[:, 13])
+        rud_cmd_SAC = R2D(sacData[:, 15])
+        stern_cmd_SAC = R2D(sacData[:, 16])
 
     # Animation function
     def anim_function(i): 
@@ -601,13 +601,13 @@ if __name__=="__main__":
     refTime = refImport[:, 0]
     refData = refImport[:, 1:]
 
-    # sacData = None
-    # sacTime = None
-    sacData = np.genfromtxt('SAC_AUV_eval.csv', delimiter=',')
-    sacTime = []
-    for i in range(sacData.shape[0]):
-        t = i * config["sim_dt"]
-        sacTime.append(t)
+    sacData = None
+    sacTime = None
+    # sacData = np.genfromtxt('SAC_AUV_eval.csv', delimiter=',')
+    # sacTime = []
+    # for i in range(sacData.shape[0]):
+    #     t = i * config["sim_dt"]
+    #     sacTime.append(t)
 
     target_positions = eval_config["path"]
 

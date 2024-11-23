@@ -69,7 +69,7 @@ Author:     Thor I. Fossen
 ###############################################################################
 def main():    
     # Simulation parameters: 
-    sampleTime = 0.02                   # sample time [seconds]
+    sampleTime = 0.2                   # sample time [seconds]
     runTime = 20
     N = int(runTime/sampleTime*60)
 
