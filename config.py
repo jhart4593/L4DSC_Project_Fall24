@@ -63,8 +63,8 @@ config = {
     "rudder_CL_high": 4.0,
     "stern_CL_low": 2.0,
     "stern_CL_high": 4.0,
-    "Cd_low": 2.0,
-    "Cd_high": 4.0,
+    "Cd_low": 0.3,
+    "Cd_high": 0.5,
     "water_curr_vel_low": 0,
     "water_curr_vel_high": 0.5
 }
