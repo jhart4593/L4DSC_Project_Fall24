@@ -347,7 +347,7 @@ class AUVEnv(gym.Env):
 
 
         if('evaluate' in inspect.stack()[-1][1]):
-            with open('PPO_AUV_eval.csv', 'a', newline='') as file:
+            with open('PPO_AUV_eval'+eval_config["file_name_mod"]+'.csv', 'a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(self.simData[-1,:])
 

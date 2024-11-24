@@ -8,10 +8,10 @@ from config import config
 from eval_config import eval_config
 
 env = make_vec_env(AUVEnv)
-model = PPO.load("./rl_model_25000000_steps.zip", env=env)
+model = PPO.load("./15_glorious dust-20241124T014319Z-001/15_glorious dust/rl_model_6000000_steps.zip", env=env)
 num_steps = 5000
 
-filename = "PPO_AUV_eval.csv"
+filename = 'PPO_AUV_eval'+eval_config["file_name_mod"]+'.csv'
 f = open(filename, "w+")
 f.close()
 
@@ -32,7 +32,7 @@ for i in range(num_steps):
     if done:
         break
 
-simData = np.genfromtxt('PPO_AUV_eval.csv', delimiter=',')
+simData = np.genfromtxt('PPO_AUV_eval'+eval_config["file_name_mod"]+'.csv', delimiter=',')
 
 simTime = []
 for i in range(simData.shape[0]):
@@ -41,10 +41,10 @@ for i in range(simData.shape[0]):
 
 target_positions = eval_config["path"]
 
-plotVehicleStates(simTime, simData, 'PPO_AUV_eval_states.png', 2)                    
-plotControls(simTime, simData, 'PPO_AUV_eval_controls.png', 3)
-plot3D(simData, target_positions, 50, 10, 'PPO_AUV_eval_3D.gif', 4)  
-plot_controls_2D(simData, 50, 'PPO_AUV_eval_controls_2D.gif', 5)
-plot_attitude_2D(simData, 50, 'PPO_AUV_eval_attitude_2D.gif', 6)
+plotVehicleStates(simTime, simData, 'PPO_AUV_eval'+eval_config["file_name_mod"]+'_states.png', 2)                    
+plotControls(simTime, simData, 'PPO_AUV_eval'+eval_config["file_name_mod"]+'_controls.png', 3)
+plot3D(simData, target_positions, 50, 10, 'PPO_AUV_eval'+eval_config["file_name_mod"]+'_3D.gif', 4)  
+plot_controls_2D(simData, 50, 'PPO_AUV_eval'+eval_config["file_name_mod"]+'_controls_2D.gif', 5)
+plot_attitude_2D(simData, 50, 'PPO_AUV_eval'+eval_config["file_name_mod"]+'_attitude_2D.gif', 6)
 
 # plt.show()

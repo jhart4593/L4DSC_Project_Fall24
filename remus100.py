@@ -50,6 +50,7 @@ import sys
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
+from eval_config import eval_config
 
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
@@ -75,13 +76,14 @@ def main():
 
     # Set Target Positions
     # target_positions = [[0,100,30],[100,100,30],[100,0,20],[0,0,20]]
-    target_positions = [[0,0,5],[0,100,5],[100,100,10],[100,0,15],[200,0,20],[200,100,25],[300,100,30],[300,0,35],[400,0,40],[400,100,45],[500,100,50]]
-    
+    # target_positions = [[0,0,5],[0,100,5],[100,100,10],[100,0,15],[200,0,20],[200,100,25],[300,100,30],[300,0,35],[400,0,40],[400,100,45],[500,100,50]]
+    target_positions = eval_config["path"]
+
     # Set Initial Heading
     init_heading = np.tan(target_positions[0][0]/max([target_positions[0][1],0.0001])) / np.pi * 180
 
     # Initialize Vehicle
-    vehicle = remus100(r_z = target_positions[0][2], r_psi = 0, r_rpm = 900, N = N, V_c0 = 0.2, target_positions = target_positions)
+    vehicle = remus100(r_z = target_positions[0][2], r_psi = 0, r_rpm = 900, N = N, V_c0 = eval_config["Vc"], target_positions = target_positions)
     
     # Initial state vectors
     eta = vehicle.eta   # position/attitude, defined by vehicle class
@@ -114,10 +116,10 @@ def main():
     plotControls(simTime, simData, 'vehicle_controls.png', 2)
     plot3D(simData, target_positions, 50, 10, 'vehicle_3D.gif', 3)   
     
-    np.savetxt("REMUS100_Reference.csv", np.column_stack((simTime, simData)), delimiter=",")
+    np.savetxt('REMUS100_Reference'+eval_config["file_name_mod"]+'.csv', np.column_stack((simTime, simData)), delimiter=",")
 
-    plt.show()
-    plt.close()
+    # plt.show()
+    # plt.close()
 
 def step(vehicle,eta,nu,sampleTime,u_actual,simData):
     # Vehicle specific control systems
@@ -221,7 +223,7 @@ class remus100:
         # Parasitic drag coefficient CD_0, i.e. zero lift and alpha = 0
         # F_drag = 0.5 * rho * Cd * (pi * b^2)   
         # F_drag = 0.5 * rho * CD_0 * S
-        Cd = 0.42                              # from Allen et al. (2000)
+        Cd = eval_config["Cd"]                       # from Allen et al. (2000)
         self.CD_0 = Cd * math.pi * b**2 / self.S
         
         # Rigid-body mass matrix expressed in CO
@@ -267,12 +269,12 @@ class remus100:
         S_fin = 0.00665             # fin area
         
         # Tail rudder parameters
-        self.CL_delta_r = 3.0       # rudder lift coefficient
+        self.CL_delta_r = eval_config["CL_delta_r"]       # rudder lift coefficient
         self.A_r = 2 * S_fin        # rudder area (m2)
         self.x_r = -a               # rudder x-position (m)
 
         # Stern-plane parameters (double)
-        self.CL_delta_s = 3.0       # stern-plane lift coefficient
+        self.CL_delta_s = eval_config["CL_delta_s"]       # stern-plane lift coefficient
         self.A_s = 2 * S_fin        # stern-plane area (m2)
         self.x_s = -a               # stern-plane z-position (m)
 

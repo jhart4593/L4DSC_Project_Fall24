@@ -591,13 +591,13 @@ def violin_plot(ppoData, refData, sacData, FPS, filename, figNo):
     plt.savefig(filename)
 
 if __name__=="__main__":
-    ppoData = np.genfromtxt('PPO_AUV_eval.csv', delimiter=',')
+    ppoData = np.genfromtxt('PPO_AUV_eval'+eval_config["file_name_mod"]+'.csv', delimiter=',')
     ppoTime = []
     for i in range(ppoData.shape[0]):
         t = i * config["sim_dt"]
         ppoTime.append(t)
 
-    refImport = np.loadtxt('REMUS100_Reference.csv', delimiter=',') 
+    refImport = np.loadtxt('REMUS100_Reference'+eval_config["file_name_mod"]+'.csv', delimiter=',') 
     refTime = refImport[:, 0]
     refData = refImport[:, 1:]
 
@@ -611,9 +611,9 @@ if __name__=="__main__":
 
     target_positions = eval_config["path"]
 
-    overplotVehicleTimeHistory(ppoTime, ppoData, refTime, refData, sacTime, sacData, 'AUV_eval_time_history_overplot.png', 2)
-    overplot3D(ppoData, refData, sacData, target_positions, 100, 10, 'AUV_eval_3D_overplot.gif', 4)  
-    overplot_controls_2D(ppoData, refData, sacData, 50, 'AUV_eval_controls_2D_overplot.gif', 5)
-    overplot_attitude_2D(ppoData, refData, sacData, 50, 'AUV_eval_attitude_2D_overplot.gif', 6)
-    violin_plot(ppoData, refData, sacData, 50, 'AUV_eval_violin_plot.png', 7)
+    overplotVehicleTimeHistory(ppoTime, ppoData, refTime, refData, sacTime, sacData, 'AUV_eval'+eval_config["file_name_mod"]+'_time_history_overplot.png', 2)
+    overplot3D(ppoData, refData, sacData, target_positions, 100, 10, 'AUV_eval'+eval_config["file_name_mod"]+'_3D_overplot.gif', 4)  
+    overplot_controls_2D(ppoData, refData, sacData, 50, 'AUV_eval'+eval_config["file_name_mod"]+'_controls_2D_overplot.gif', 5)
+    overplot_attitude_2D(ppoData, refData, sacData, 50, 'AUV_eval'+eval_config["file_name_mod"]+'_attitude_2D_overplot.gif', 6)
+    violin_plot(ppoData, refData, sacData, 50, 'AUV_eval'+eval_config["file_name_mod"]+'_violin_plot.png', 7)
 
