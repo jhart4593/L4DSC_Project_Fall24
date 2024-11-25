@@ -257,12 +257,12 @@ class AUVEnv(gym.Env):
             ki = (norm_action + 1)/2 * self.ki_high
             return ki
         
-        self.z_kp = kp_norm(action[0])
-        self.z_ki = ki_norm(action[1])
-        self.yaw_kp = kp_norm(action[2])
-        self.yaw_ki = ki_norm(action[3])
-        self.theta_kp = kp_norm(action[4])
-        self.theta_ki = ki_norm(action[5])
+        self.vehicle.z_kp = kp_norm(action[0])
+        self.vehicle.z_ki = ki_norm(action[1])
+        self.vehicle.yaw_kp = kp_norm(action[2])
+        self.vehicle.yaw_ki = ki_norm(action[3])
+        self.vehicle.theta_kp = kp_norm(action[4])
+        self.vehicle.theta_ki = ki_norm(action[5])
 
 
         self.t += self.sampleTime
