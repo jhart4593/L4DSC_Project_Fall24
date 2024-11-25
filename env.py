@@ -333,12 +333,12 @@ class AUVEnv(gym.Env):
             wandb.log({"state/depth_error":self.vehicle.z_previous_error})
             wandb.log({"state/yaw_error":self.vehicle.yaw_previous_error})
             wandb.log({"state/pitch_error":self.vehicle.theta_previous_error})
-            wandb.log({"state/depth_Kp":self.z_kp})
-            wandb.log({"state/depth_Ki":self.z_ki})
-            wandb.log({"state/yaw_Kp":self.yaw_kp})
-            wandb.log({"state/yaw_Ki":self.yaw_ki})
-            wandb.log({"state/pitch_Kp":self.theta_kp})
-            wandb.log({"state/pitch_Ki":self.theta_ki})
+            wandb.log({"state/depth_Kp":self.vehicle.z_kp})
+            wandb.log({"state/depth_Ki":self.vehicle.z_ki})
+            wandb.log({"state/yaw_Kp":self.vehicle.yaw_kp})
+            wandb.log({"state/yaw_Ki":self.vehicle.yaw_ki})
+            wandb.log({"state/pitch_Kp":self.vehicle.theta_kp})
+            wandb.log({"state/pitch_Ki":self.vehicle.theta_ki})
 
             
             # log number of episodes that are terminated vs truncated
