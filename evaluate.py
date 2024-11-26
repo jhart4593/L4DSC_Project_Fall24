@@ -26,6 +26,9 @@ for i in range(num_steps):
 
     action, _  = model.predict(obs)
     obs, rew, done, info = env.step(action)
+
+    if t%10 == 0:
+        print(action)
     
     # Stats
     episode_rewards[-1] += rew

@@ -4,6 +4,6 @@ eval_config = {
     "Vc": 0.2,
     "CL_delta_r": 3,
     "CL_delta_s": 3,
-    "Cd": 0.5,
-    "file_name_mod": "_High_Drag"
+    "Cd": 0.42,
+    "file_name_mod": ""
 }

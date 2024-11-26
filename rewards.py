@@ -89,11 +89,11 @@ def get_rewards(vehicle, depth_err, yaw_err, pitch_err, simData, beta):
 
 
     # Scale down yaw error term by alpha coefficient
-    T_yaw = cfg["reward_alpha_coefficient"] * T_yaw
+    # T_yaw = cfg["reward_alpha_coefficient"] * T_yaw
 
     # Scale up pitch error reward and actuation penalty
-    T_pitch = 1.5 * T_pitch
-    neg_stern_plane_act = 2 * neg_stern_plane_act
+    # T_pitch = 1.5 * T_pitch
+    # neg_stern_plane_act = 2 * neg_stern_plane_act
 
     # Output individual reward terms as well as sum
     indiv_terms = [T_depth,T_yaw,T_pitch,neg_rud_act,neg_stern_plane_act]

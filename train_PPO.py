@@ -12,7 +12,7 @@ from config import config
 from env import AUVEnv 
 
 run = wandb.init(
-    project="AUV_env",
+    project="AUV_env_new",
     config=config,
     sync_tensorboard=True,
     # monitor_gym=True,
