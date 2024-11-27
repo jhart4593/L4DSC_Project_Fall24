@@ -77,6 +77,17 @@ class AUVEnv(gym.Env):
         self.kp_high = self.cfg["Kp_limit"]
         self.ki_high = self.cfg["Ki_limit"]
 
+        # Percentage of base PID values to explore (over and under)
+        self.k_pct_rng = self.cfg["k_percent_range"]
+
+        # capture base PID coefficients
+        self.yaw_kp = self.vehicle.yaw_kp
+        self.yaw_ki = self.vehicle.yaw_ki
+        self.pitch_kp = self.vehicle.theta_kp
+        self.pitch_ki = self.vehicle.theta_ki
+        self.depth_kp = self.vehicle.z_kp
+        self.depth_ki = self.vehicle.z_ki
+
         # Define action and observation space
         # action space is limits on PID coefficients - Kp, Ki for depth, yaw, pitch
         # controllers respectively
@@ -249,21 +260,32 @@ class AUVEnv(gym.Env):
         # [self.z_kp, self.z_ki,self.yaw_kp, self.yaw_ki, self.theta_kp, self.theta_ki] = action
 
         # handling normalized action space
-        def kp_norm(norm_action):
-            kp = (norm_action + 1)/2 * self.kp_high
-            return kp
+        # def kp_norm(norm_action):
+        #     kp = (norm_action + 1)/2 * self.kp_high
+        #     return kp
         
-        def ki_norm(norm_action):
-            ki = (norm_action + 1)/2 * self.ki_high
-            return ki
+        # def ki_norm(norm_action):
+        #     ki = (norm_action + 1)/2 * self.ki_high
+        #     return ki
         
-        self.vehicle.z_kp = kp_norm(action[0])
-        self.vehicle.z_ki = ki_norm(action[1])
-        self.vehicle.yaw_kp = kp_norm(action[2])
-        self.vehicle.yaw_ki = ki_norm(action[3])
-        self.vehicle.theta_kp = kp_norm(action[4])
-        self.vehicle.theta_ki = ki_norm(action[5])
+        # self.vehicle.z_kp = kp_norm(action[0])
+        # self.vehicle.z_ki = ki_norm(action[1])
+        # self.vehicle.yaw_kp = kp_norm(action[2])
+        # self.vehicle.yaw_ki = ki_norm(action[3])
+        # self.vehicle.theta_kp = kp_norm(action[4])
+        # self.vehicle.theta_ki = ki_norm(action[5])
 
+        # Incremental actions explores max range of +/- self.k_pct_rng percentage of base PID coefficients 
+        def inc_act(action,base_val):
+            inc = base_val * self.k_pct_rng * action
+            return base_val + inc
+        
+        self.vehicle.z_kp = inc_act(action[0],self.depth_kp)
+        self.vehicle.z_ki = inc_act(action[1],self.depth_ki)
+        self.vehicle.yaw_kp = inc_act(action[2],self.yaw_kp)
+        self.vehicle.yaw_ki = inc_act(action[3],self.yaw_ki)
+        self.vehicle.theta_kp = inc_act(action[4],self.pitch_kp)
+        self.vehicle.theta_ki = inc_act(action[5],self.pitch_ki)
 
         self.t += self.sampleTime
 

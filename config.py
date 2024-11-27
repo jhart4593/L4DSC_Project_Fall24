@@ -37,6 +37,7 @@ config = {
 
     "Kp_limit": 10,
     "Ki_limit": 1,
+    "k_percent_range": 0.2,
 
     # path configuration values
     "path_list": {
